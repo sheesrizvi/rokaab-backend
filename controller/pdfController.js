@@ -62,6 +62,11 @@ const generatePdf = asyncHandler(async (req, res) => {
     <img style="float: left; width: 95%" src=${imgurlF}  />
   </footer>`,
     },
+    childProcessOptions: {
+      env: {
+        OPENSSL_CONF: "/dev/null",
+      },
+    },
   };
   var options2 = {
     format: "A4",
@@ -78,6 +83,11 @@ const generatePdf = asyncHandler(async (req, res) => {
     <img style="flex:1;float: left; width: 30%" src=${imgurlS}  />
     <p style="flex:1;float: right;margin-top:30px">ونشکرکم عیل تسھیل الخدمة للمعتمرین۔</p>
   </footer>`,
+    },
+    childProcessOptions: {
+      env: {
+        OPENSSL_CONF: "/dev/null",
+      },
     },
   };
 
@@ -233,9 +243,11 @@ const getPdf = asyncHandler(async (req, res) => {
   if (count % 30 !== 0) {
     pageCount = pageCount + 1;
   }
-  const pdf = await Pdf.find({}).populate("user company").limit(pageSize)
-  .skip(pageSize * (page - 1));
-  res.json({pdf, pageCount});
+  const pdf = await Pdf.find({})
+    .populate("user company")
+    .limit(pageSize)
+    .skip(pageSize * (page - 1));
+  res.json({ pdf, pageCount });
 });
 const deletePdf = asyncHandler(async (req, res) => {
   const sub = await Pdf.findById(req.query.id);
