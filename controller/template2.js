@@ -34,6 +34,11 @@ const Template2 = function ({
           size: letter; 
         }
      
+        
+      html{
+        font-family: "IBM Plex Sans Arabic", sans-serif;
+      }
+
         body: {
           padding: 0;
           margin: 0;
