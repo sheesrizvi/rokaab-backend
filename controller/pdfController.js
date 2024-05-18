@@ -41,6 +41,7 @@ const generatePdf = asyncHandler(async (req, res) => {
   const { company, userData, driver, locto, locfrom, plateno } = req.body;
 
   const loc = await City.findById(locto);
+  const locF = await City.findById(locfrom);
   const imgurl = company.header;
 
   const imgurlF = company.footer;
@@ -98,7 +99,7 @@ const generatePdf = asyncHandler(async (req, res) => {
           userData,
           driver,
           locto: loc.nameAr,
-          locfrom,
+          locfrom: locF.nameAr,
           plateno,
           imgurl,
           imgurlF,
@@ -164,7 +165,7 @@ const generatePdf = asyncHandler(async (req, res) => {
           userData,
           driver,
           locto: loc.nameAr,
-          locfrom,
+          locfrom: locF.nameAr,
           plateno,
           imgurl,
           imgurlF,

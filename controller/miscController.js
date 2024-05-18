@@ -38,15 +38,11 @@ const getCities = asyncHandler(async (req, res) => {
 
 const deleteCities = asyncHandler(async (req, res) => {
   const PlanId = req.query.cityId;
-  const plan = await City.findById(PlanId);
+  const plan = await City.deleteOne({_id:PlanId});
 
-  if (plan) {
-    await plan.remove();
-    res.json({ message: "Plan removed" });
-  } else {
-    res.status(404);
-    throw new Error("Plan not found");
-  }
+ 
+    res.json({ message: "Location removed" });
+  
 });
 
 const getReport = asyncHandler(async (req, res) => {
