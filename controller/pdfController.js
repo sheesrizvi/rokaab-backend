@@ -9,10 +9,7 @@ const Pdf = require("../models/pdfModel");
 const City = require("../models/cityModel");
 const Template2 = require("./template2");
 const nodemailer = require("nodemailer");
-const {
-  DeleteObjectCommand,
-  S3Client
-} = require("@aws-sdk/client-s3");
+const { DeleteObjectCommand, S3Client } = require("@aws-sdk/client-s3");
 const s3 = new aws.S3({
   accessKeyId: process.env.AWS_ACCESS_KEY,
   secretAccessKey: process.env.AWS_SECRET_KEY,
@@ -43,7 +40,7 @@ const transporter = nodemailer.createTransport({
 const generatePdf = asyncHandler(async (req, res) => {
   const { company, userData, driver, locto, locfrom, plateno } = req.body;
 
-const loc = await City.findById(locto)
+  const loc = await City.findById(locto);
   const imgurl = company.header;
 
   const imgurlF = company.footer;
@@ -59,118 +56,163 @@ const loc = await City.findById(locto)
     </header>`,
     },
     footer: {
-      height: "28mm",
+      height: "48mm",
       contents: `<footer style="margin: auto; width: 90%">
-    <img style="float: left; width: 10%" src=${imgurlS}  />
+    <img style="float: left; width: 15%" src=${imgurlS}  />
     <img style="float: left; width: 95%" src=${imgurlF}  />
   </footer>`,
     },
   };
+  var options2 = {
+    format: "A4",
 
+    header: {
+      height: "70mm",
+      contents: `<header style="margin: auto; width: 90%; height:70mm;">
+      <img style="float: left; width: 95%;"src=${imgurl}  />
+    </header>`,
+    },
+    footer: {
+      height: "48mm",
+      contents: `<footer style="margin: auto; width: 90%;display:flex;align-items:center">
+    <img style="flex:1;float: left; width: 30%" src=${imgurlS}  />
+    <p style="flex:1;float: right;margin-top:30px">ونشکرکم عیل تسھیل الخدمة للمعتمرین۔</p>
+  </footer>`,
+    },
+  };
 
-  if (loc.name.match(/Airport/g))
-    {
-      pdf
+  if (loc.name.match(/Airport/g)) {
+    pdf
       .create(
-        Template2({ userData, driver, locto: loc.nameAr, locfrom, plateno, imgurl, imgurlF, imgurlS }),
+        Template2({
+          userData,
+          driver,
+          locto: loc.nameAr,
+          locfrom,
+          plateno,
+          imgurl,
+          imgurlF,
+          imgurlS,
+          company,
+        }),
+        options2
+      )
+      .toFile(`${__dirname}/${driver._id}.pdf`, (err) => {
+        if (err) {
+          res.json(err);
+        } else {
+          transporter.sendMail(
+            {
+              from: ` Rokaab <rokaab026@gmail.com>`, // sender address
+              to: `${company.email}`, // list of receivers
+              replyTo: `<rokaab026@gmail.com>`,
+              subject: `PDF Document`, // Subject line
+              text: `Find the attached document`, // plain text body
+              // html: emailTemplate(orderItems, paymentMethod, totalPrice), // html body
+              attachments: [
+                {
+                  filename: `${driver._id}.pdf`,
+                  path: `${__dirname}/${driver._id}.pdf`,
+                },
+              ],
+            },
+            function (err, info) {
+              const fileContent = fs.readFileSync(
+                `${__dirname}/${driver._id}.pdf`
+              );
+
+              const fileName = `${Date.now()}_${Math.round(
+                Math.random() * 1e9
+              )}`;
+              const params = {
+                Bucket: process.env.AWS_BUCKET,
+                Key: `${fileName}.pdf`,
+                Body: fileContent,
+              };
+
+              s3.upload(params, async (err, data) => {
+                if (err) {
+                  console.error("Error uploading file:", err);
+                } else {
+                  const pdf = await Pdf.create({
+                    company: company._id,
+                    pdf: data.Location,
+                    user: driver._id,
+                  });
+                  fs.unlinkSync(`${__dirname}/${driver._id}.pdf`);
+                  res.json(pdf);
+                }
+              });
+            }
+          );
+        }
+      });
+  } else {
+    pdf
+      .create(
+        template({
+          userData,
+          driver,
+          locto: loc.nameAr,
+          locfrom,
+          plateno,
+          imgurl,
+          imgurlF,
+          imgurlS,
+        }),
         options
       )
       .toFile(`${__dirname}/${driver._id}.pdf`, (err) => {
         if (err) {
           res.json(err);
         } else {
-          transporter.sendMail({
-            from: ` Rokaab <rokaab026@gmail.com>`, // sender address
-            to: `${company.email}`, // list of receivers
-            replyTo: `<rokaab026@gmail.com>`,
-            subject: `PDF Document`, // Subject line
-            text: `Find the attached document`, // plain text body
-            // html: emailTemplate(orderItems, paymentMethod, totalPrice), // html body
-            attachments: [
-              {
-                filename: `${driver._id}.pdf`,
-                path: `${__dirname}/${driver._id}.pdf`,
-              },
-            ],
-          }, function (err, info) {
-            const fileContent = fs.readFileSync(`${__dirname}/${driver._id}.pdf`);
-  
-            const fileName = `${Date.now()}_${Math.round(Math.random() * 1e9)}`;
-            const params = {
-              Bucket: process.env.AWS_BUCKET,
-              Key: `${fileName}.pdf`,
-              Body: fileContent,
-            };
-    
-            s3.upload(params, async (err, data) => {
-              if (err) {
-                console.error("Error uploading file:", err);
-              } else {
-                const pdf = await Pdf.create({
-                  company: company._id,
-                  pdf: data.Location,
-                  user: driver._id,
-                });
-                fs.unlinkSync(`${__dirname}/${driver._id}.pdf`);
-                res.json(pdf);
-              }
-            });
-          })
-          
-        }
-      });
-    } else {
-      pdf
-      .create(
-        template({ userData, driver, locto: loc.nameAr, locfrom, plateno, imgurl, imgurlF, imgurlS }),
-        options
-      )
-      .toFile(`${__dirname}/${driver._id}.pdf`, (err) => {
-        if (err) {
-          res.json(err);
-        } else {
-          transporter.sendMail({
-            from: ` Rokaab <rokaab026@gmail.com>`, // sender address
-            to: `${company.email}`, // list of receivers
-            replyTo: `<rokaab026@gmail.com>`,
-            subject: `PDF Document`, // Subject line
-            text: `Find the attached document`, // plain text body
-            // html: emailTemplate(orderItems, paymentMethod, totalPrice), // html body
-            attachments: [
-              {
-                filename: `${driver._id}.pdf`,
-                path: `${__dirname}/${driver._id}.pdf`,
-              },
-            ],
-          }, function (err, info) {
-            const fileContent = fs.readFileSync(`${__dirname}/${driver._id}.pdf`);
-  
-            const fileName = `${Date.now()}_${Math.round(Math.random() * 1e9)}`;
-            const params = {
-              Bucket: process.env.AWS_BUCKET,
-              Key: `${fileName}.pdf`,
-              Body: fileContent,
-            };
-    
-            s3.upload(params, async (err, data) => {
-              if (err) {
-                console.error("Error uploading file:", err);
-              } else {
-                const pdf = await Pdf.create({
-                  company: company._id,
-                  pdf: data.Location,
-                  user: driver._id,
-                });
-                fs.unlinkSync(`${__dirname}/${driver._id}.pdf`);
-                res.json(pdf);
-              }
-            });
-          })
-        }
-      });
-    }
+          transporter.sendMail(
+            {
+              from: ` Rokaab <rokaab026@gmail.com>`, // sender address
+              to: `${company.email}`, // list of receivers
+              replyTo: `<rokaab026@gmail.com>`,
+              subject: `PDF Document`, // Subject line
+              text: `Find the attached document`, // plain text body
+              // html: emailTemplate(orderItems, paymentMethod, totalPrice), // html body
+              attachments: [
+                {
+                  filename: `${driver._id}.pdf`,
+                  path: `${__dirname}/${driver._id}.pdf`,
+                },
+              ],
+            },
+            function (err, info) {
+              const fileContent = fs.readFileSync(
+                `${__dirname}/${driver._id}.pdf`
+              );
 
- 
+              const fileName = `${Date.now()}_${Math.round(
+                Math.random() * 1e9
+              )}`;
+              const params = {
+                Bucket: process.env.AWS_BUCKET,
+                Key: `${fileName}.pdf`,
+                Body: fileContent,
+              };
+
+              s3.upload(params, async (err, data) => {
+                if (err) {
+                  console.error("Error uploading file:", err);
+                } else {
+                  const pdf = await Pdf.create({
+                    company: company._id,
+                    pdf: data.Location,
+                    user: driver._id,
+                  });
+                  fs.unlinkSync(`${__dirname}/${driver._id}.pdf`);
+                  res.json(pdf);
+                }
+              });
+            }
+          );
+        }
+      });
+  }
 
   // const a = await axios.get(imgurl, {
   //   responseType: "arraybuffer",
@@ -189,7 +231,7 @@ const getPdf = asyncHandler(async (req, res) => {
 });
 const deletePdf = asyncHandler(async (req, res) => {
   const sub = await Pdf.findById(req.query.id);
-  
+
   const f1 = sub.pdf;
 
   if (f1) {
@@ -208,5 +250,5 @@ const deletePdf = asyncHandler(async (req, res) => {
 module.exports = {
   generatePdf,
   getPdf,
-  deletePdf
+  deletePdf,
 };

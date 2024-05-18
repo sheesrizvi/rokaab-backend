@@ -1,27 +1,28 @@
 const Template2 = function ({
-    userData,
-    driver,
-    locto,
-    locfrom,
-    plateno,
-    imgurl,
-    imgurlF,
-    imgurlS,
-  }) {
-    const today = new Date().toDateString();
-  
-    function generateTable(userData) {
-      let table = "<table>";
-      table +=
-        '<tr><th style="font-size: 12px">Name2</th><th style="font-size: 12px">Passport Number</th><th style="font-size: 12px">Nationality</th><th style="font-size: 12px">Mobile</th></tr>';
-      userData.forEach((item) => {
-        table += `<tr><td style="font-size: 9px">${item.name}</td><td style="font-size: 9px">${item.passportNo}</td><td style="font-size: 9px">${item.nationality}</td><td style="font-size: 9px">${item.mobile}</td></tr>`;
-      });
-      table += "</table>";
-      return table;
-    }
-    return `
-        <!DOCTYPE html>
+  userData,
+  driver,
+  locto,
+  locfrom,
+  plateno,
+  imgurl,
+  imgurlF,
+  imgurlS,
+  company,
+}) {
+  const today = new Date().toDateString();
+
+  function generateTable(userData) {
+    let table = "<table>";
+    table +=
+      '<tr><th style="font-size: 12px">التوقیع</th><th style="font-size: 12px">الجنسیة</th><th style="font-size: 12px">رقم الجواز/ التاش یۃ/اقامةr</th><th style="font-size: 12px">االسم</th></tr>';
+    userData.forEach((item) => {
+      table += `<tr><td style="font-size: 9px">${item.mobile}</td><td style="font-size: 9px">${item.nationality}</td><td style="font-size: 9px">${item.passportNo}</td><td style="font-size: 9px">${item.name}</td></tr>`;
+    });
+    table += "</table>";
+    return table;
+  }
+  return `
+  <!DOCTYPE html>
         <html>
         <head>
         <style>
@@ -74,6 +75,11 @@ const Template2 = function ({
         .extra-spacing-tr {
           height: 20px;
       }
+      
+      .date-container{
+        float: right;
+        text-align: right;
+      }
             
         
        
@@ -87,33 +93,50 @@ const Template2 = function ({
         
         <div class="invoice-container">
         <div>
-        <h2 style='text-align: center;'>قائمة اسماء الركاب</h2>  
+        <h2 style='text-align: center;'>إبرام عقد االتفاق ب  ني الطرف  ني</h2>  
+        
+       
+          <h3 style="text-align:right">تحية طيبة وبعد ،،،</h3>
+          <h3 style="text-align:right">${today}: إنه في يوم</h3>
+  
         </div >
+        
+        <p style="text-align:center">بیانات السائق</p>
         <table style="text-align: center">
               <tr>
-              <td style="font-size: 9px; width: "250px"; overflow-wrap: break-word">${
+              <td style="font-size: 9px; width: "250px"; overflow-wrap: break-word">رقم اللوحة</td>
+              <td style="font-size: 9px; width: "50px"; overflow-wrap: break-word">رقم الھویة</td>
+              <td style="font-size: 9px; width: "250px"; overflow-wrap: break-word">االسم</td>
+             
+              </tr>
+              <tr>
+              <td style="font-size: 9px; width: "250px"; overflow-wrap: break-word">${plateno}</td>
+              <td style="font-size: 9px; width: "50px"; overflow-wrap: break-word">${
                 driver.license
               }</td>
-              <td style="font-size: 9px; width: "50px"; overflow-wrap: break-word">هوية</td>
               <td style="font-size: 9px; width: "250px"; overflow-wrap: break-word">${
                 driver.name
               }</td>
-              <td style="font-size: 9px; width: "50px"; overflow-wrap: break-word">اسم السائق</td>
+             
               </tr>
-              <tr>
-              <td style="font-size: 9px; width: "250px"; overflow-wrap: break-word">${today}</td>
-              <td style="font-size: 9px; width: "50px"; overflow-wrap: break-word">تاريخ</td>
-              <td style="font-size: 9px; width: "250px"; overflow-wrap: break-word">${plateno}</td>
-              <td style="font-size: 9px; width: "50px"; overflow-wrap: break-word">رقم لوحة</td>
-              </tr>
-              <tr>
-              <td style="font-size: 9px; width: "250px"; overflow-wrap: break-word">${locto}</td>
-              <td style="font-size: 9px; width: "50px"; overflow-wrap: break-word">الى</td>
-              <td style="font-size: 9px; width: "250px"; overflow-wrap: break-word">${locfrom}</td>
-              <td style="font-size: 9px; width: "50px"; overflow-wrap: break-word">متجه من</td>
-              </tr>
+              
      
       </table>
+      <div style="display:flex;width:100%">
+      <h3 style="text-align:right">${company.companyCR}سجل تجاری ${
+    company.name
+  }: نحن<h3>    
+      </div>
+      <div style="display:flex;width:100%">
+      <h3 style="text-align:right">${locto}ایل ${locfrom}: تم االتفاق مع مجموعة ضیوف الرحمان لنقلھم من<h3>    
+      </div>
+
+
+   
+      <div style="direction:rtl;display:flex">
+       <p style="text-align:right">وھم:ـ</p>
+
+      </div>
         <table style="text-align: center">
               
        
@@ -123,8 +146,8 @@ const Template2 = function ({
       </table>
         </div>
         </body>
-        </html>`;
-  };
-  
-  module.exports = Template2;
-  
+        </html>
+      `;
+};
+
+module.exports = Template2;

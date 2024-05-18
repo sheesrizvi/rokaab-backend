@@ -19,7 +19,7 @@ const userSchema = mongoose.Schema(
     phone: {
       type: Number,
       required: true,
-    },  
+    },
     nationality: {
       type: String,
       required: true,
@@ -38,7 +38,7 @@ const userSchema = mongoose.Schema(
     },
     company: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "Company"
+      ref: "Company",
     },
     subscription: {
       type: mongoose.Schema.Types.ObjectId,
@@ -50,6 +50,9 @@ const userSchema = mongoose.Schema(
       default: false,
     },
     pushToken: {
+      type: String,
+    },
+    registeredThrough: {
       type: String,
     },
   },

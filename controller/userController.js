@@ -140,6 +140,7 @@ const registerUser = asyncHandler(async (req, res) => {
     placeBirth,
     license,
     company,
+    registeredThrough,
   } = req.body;
 
   const userExists = await User.findOne({ email });
@@ -159,6 +160,7 @@ const registerUser = asyncHandler(async (req, res) => {
     placeBirth,
     license,
     company,
+    registeredThrough,
   });
 
   if (user) {
@@ -236,9 +238,9 @@ const updateUserProfile = asyncHandler(async (req, res) => {
 // @route   Get /api/users
 // @access  Private/Admin
 const getUsers = asyncHandler(async (req, res) => {
-  const users = await User.find({ subscriptionStatus: true }).populate("company", "_id name").populate({path: "subscription", populate: [
-    {path: "plan"}
-  ]});
+  const users = await User.find({ subscriptionStatus: true })
+    .populate("company", "_id name")
+    .populate({ path: "subscription", populate: [{ path: "plan" }] });
 
   res.json(users);
 });
@@ -252,8 +254,7 @@ const getBlockedUser = asyncHandler(async (req, res) => {
 // @access  Private/Admin
 
 const deleteUser = asyncHandler(async (req, res) => {
-  
-  await User.deleteOne({ _id: req.query.id});
+  await User.deleteOne({ _id: req.query.id });
   res.json({ message: "Company removed" });
 });
 
@@ -276,34 +277,33 @@ const getUserById = asyncHandler(async (req, res) => {
 // @access  Private/Admin
 const updateUser = asyncHandler(async (req, res) => {
   const user = await User.findById(req.body.id);
-  const userExists = await User.find({email: req.body.email});
-if (userExists) {
-  res.status(404).json("User with email exists")
-}else {
-  if (user) {
-    user.name = req.body.name;
-    user.email = req.body.email;
-    user.phone = req.body.phone;
-    user.dob = req.body.dob;
-    user.license = req.body.license;
-    user.placeBirth = req.body.placeBirth;
-    user.company = req.body.company;
-    if (req.body.password) {
-      user.password = req.body.password;
-    }
-    const updatedUser = await user.save();
-
-    res.json({
-      _id: updatedUser._id,
-      name: updatedUser.name,
-      email: updatedUser.email,
-    });
+  const userExists = await User.find({ email: req.body.email });
+  if (userExists) {
+    res.status(404).json("User with email exists");
   } else {
-    res.status(404);
-    throw new Error("User not found");
+    if (user) {
+      user.name = req.body.name;
+      user.email = req.body.email;
+      user.phone = req.body.phone;
+      user.dob = req.body.dob;
+      user.license = req.body.license;
+      user.placeBirth = req.body.placeBirth;
+      user.company = req.body.company;
+      if (req.body.password) {
+        user.password = req.body.password;
+      }
+      const updatedUser = await user.save();
+
+      res.json({
+        _id: updatedUser._id,
+        name: updatedUser.name,
+        email: updatedUser.email,
+      });
+    } else {
+      res.status(404);
+      throw new Error("User not found");
+    }
   }
-}
- 
 });
 const approveUser = asyncHandler(async (req, res) => {
   const user = await User.findById(req.params.id);
