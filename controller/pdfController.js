@@ -226,8 +226,16 @@ const generatePdf = asyncHandler(async (req, res) => {
 });
 
 const getPdf = asyncHandler(async (req, res) => {
-  const pdf = await Pdf.find({}).populate("user company");
-  res.json(pdf);
+  const page = Number(req.query.pageNumber) || 1;
+  const pageSize = 30;
+  const count = await Pdf.countDocuments({});
+  var pageCount = Math.floor(count / 30);
+  if (count % 30 !== 0) {
+    pageCount = pageCount + 1;
+  }
+  const pdf = await Pdf.find({}).populate("user company").limit(pageSize)
+  .skip(pageSize * (page - 1));
+  res.json({pdf, pageCount});
 });
 const deletePdf = asyncHandler(async (req, res) => {
   const sub = await Pdf.findById(req.query.id);
