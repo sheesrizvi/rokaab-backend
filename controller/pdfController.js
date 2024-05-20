@@ -57,7 +57,7 @@ const generatePdf = asyncHandler(async (req, res) => {
     </header>`,
     },
     footer: {
-      height: "48mm",
+      height: "58mm",
       contents: `<footer style="margin: auto; width: 90%">
     <img style="float: left; width: 15%" src=${imgurlS}  />
     <img style="float: left; width: 95%" src=${imgurlF}  />
