@@ -19,6 +19,8 @@ const subscriptionSchema = mongoose.Schema({
     type: Boolean,
     required: true,
   },
+}, {
+  timestamps: true,
 });
 
 const Subscription = mongoose.model("Subscription", subscriptionSchema);
