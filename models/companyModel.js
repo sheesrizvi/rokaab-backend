@@ -43,6 +43,8 @@ const companySchema = mongoose.Schema({
   companyLNo: {
     type: String,
   },
+}, {
+  timestamps: true,
 });
 
 const Company = mongoose.model("Company", companySchema);

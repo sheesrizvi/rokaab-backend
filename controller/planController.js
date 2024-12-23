@@ -54,7 +54,7 @@ const deletePlan = asyncHandler(async (req, res) => {
   const PlanId = req.query.planId;
   const plan = await Plan.deleteOne({ _id: PlanId });
 
-  res.json({ message: "Plan removed" });
+  res.json({ message: "Plan removed" });
 });
 
 const getPlanById = asyncHandler(async (req, res) => {

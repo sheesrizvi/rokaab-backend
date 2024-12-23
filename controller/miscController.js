@@ -3,7 +3,7 @@ const City = require("../models/cityModel");
 const Company = require("../models/companyModel");
 const User = require("../models/userModel");
 const Subscription = require("../models/subscriptionModel");
-const { endOfDay, startOfDay } = require("date-fns");
+const { endOfDay, startOfDay, parseISO } = require("date-fns");
 
 const createCity = asyncHandler(async (req, res) => {
   const { name, nameAr, nameBn, nameUr } = req.body;
@@ -38,11 +38,9 @@ const getCities = asyncHandler(async (req, res) => {
 
 const deleteCities = asyncHandler(async (req, res) => {
   const PlanId = req.query.cityId;
-  const plan = await City.deleteOne({_id:PlanId});
+  const plan = await City.deleteOne({ _id: PlanId });
 
- 
-    res.json({ message: "Location removed" });
-  
+  res.json({ message: "Location removed" });
 });
 
 const getReport = asyncHandler(async (req, res) => {
@@ -64,10 +62,55 @@ const getReport = asyncHandler(async (req, res) => {
 
   res.json({ expiry, totalDriver, totalSubscription, company });
 });
+const getReportSubscription = asyncHandler(async (req, res) => {
+  const { startDate, endDate } = req.query;
+  const s1 = parseISO(startDate);
+  const s2 = parseISO(endDate);
+
+  const totalSubscription = await Subscription.find({
+    createdAt: {
+      $gte: startOfDay(s1),
+      $lte: endOfDay(s2),
+    },
+  }).populate("user plan");
+
+  res.json(totalSubscription);
+});
+const getReportDriver = asyncHandler(async (req, res) => {
+  const { startDate, endDate } = req.query;
+  const s1 = parseISO(startDate);
+  const s2 = parseISO(endDate);
+  const totalSubscription = await User.find({
+    createdAt: {
+      $gte: startOfDay(s1),
+      $lte: endOfDay(s2),
+    },
+  })
+    .populate("company", "_id name")
+    .populate({ path: "subscription", populate: [{ path: "plan" }] });
+
+  res.json(totalSubscription);
+});
+const getReportCompany = asyncHandler(async (req, res) => {
+  const { startDate, endDate } = req.query;
+  const s1 = parseISO(startDate);
+  const s2 = parseISO(endDate);
+  const totalSubscription = await Company.find({
+    createdAt: {
+      $gte: startOfDay(s1),
+      $lte: endOfDay(s2),
+    },
+  });
+
+  res.json(totalSubscription);
+});
 
 module.exports = {
   createCity,
   deleteCities,
   getCities,
   getReport,
+  getReportCompany,
+  getReportDriver,
+  getReportSubscription,
 };
