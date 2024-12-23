@@ -3,12 +3,12 @@ const mongoose = require("mongoose");
 const tripHistorySchema = mongoose.Schema(
   {
     locto: {
-        type: String,
-        required: true
+      type: String,
+      required: true
     },
     locfrom: {
-        type: String,
-        required: true
+      type: String,
+      required: true
     },
     company: {
       type: mongoose.Schema.Types.ObjectId,
@@ -21,13 +21,13 @@ const tripHistorySchema = mongoose.Schema(
       required: true
     },
     plateno: {
-        type: String,
+      type: String,
     },
     passengers: [{
-        name: { type: String },
-        nationality: { type: String },
-        phone: { type: String },
-        documentNumber: { type: String }
+      name: { type: String },
+      nationality: { type: String },
+      mobile: { type: String },
+      passportNo: { type: String }
     }]
   },
   {

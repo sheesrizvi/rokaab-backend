@@ -74,7 +74,7 @@ const generatePdf = asyncHandler(async (req, res) => {
       },
     },
   };
- 
+  console.log(userData, 'userData')
   const tripHistory = await TripHistory.create({
     locto,
     locfrom,
@@ -257,38 +257,38 @@ const getAllTripsHistory = asyncHandler(async (req, res) => {
 
   const tripHistories = await TripHistory.find({}).sort({ createdAt: -1 }).populate('driver').populate('company').skip((pageNumber - 1) * pageSize).limit(pageSize)
 
-  if(!tripHistories || tripHistories.length === 0) {
+  if (!tripHistories || tripHistories.length === 0) {
     return res.status(400).send({ message: "No Trip History Found " })
   }
 
   const totalDocuments = await TripHistory.countDocuments({})
-  const pageCount = Math.ceil(totalDocuments/pageSize)
+  const pageCount = Math.ceil(totalDocuments / pageSize)
 
   res.status(200).send({ tripHistories, pageCount })
 })
 
 const getTripsByDriverId = asyncHandler(async (req, res) => {
-   const { driverId } = req.query
+  const { driverId } = req.query
 
-   const tripHistory = await TripHistory.find({ driver: driverId }).populate('company').populate('driver')
+  const tripHistory = await TripHistory.find({ driver: driverId }).populate('company').populate('driver')
 
-   if(!tripHistory || tripHistory.length === 0) {
+  if (!tripHistory || tripHistory.length === 0) {
     return res.status(400).send({ message: 'No Trips found for this driver' })
-   }
-
-   res.status(200).send({ tripHistory })
+  }
+  console.log(tripHistory[0].passengers)
+  res.status(200).send({ tripHistory })
 })
 
-const getTripsById = asyncHandler(async(req, res) => {
+const getTripsById = asyncHandler(async (req, res) => {
   const { tripId } = req.query
 
-   const tripHistory = await TripHistory.findOne({ _id: tripId}).populate('company').populate('driver')
+  const tripHistory = await TripHistory.findOne({ _id: tripId }).populate('company').populate('driver')
 
-   if(!tripHistory || tripHistory.length === 0) {
+  if (!tripHistory || tripHistory.length === 0) {
     return res.status(400).send({ message: 'No Trips found for this driver' })
-   }
+  }
 
-   res.status(200).send({ tripHistory })
+  res.status(200).send({ tripHistory })
 })
 
 module.exports = {
