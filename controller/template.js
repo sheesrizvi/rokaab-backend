@@ -1,5 +1,6 @@
 const Template = function ({
-  userData,
+  userData1,
+  userData2,
   driver,
   locto,
   locfrom,
@@ -7,14 +8,16 @@ const Template = function ({
   imgurl,
   imgurlF,
   imgurlS,
+  company,
+  qrUrl
 }) {
   const today = new Date().toDateString();
 
-  function generateTable(userData) {
+  function generateTable(userData2) {
     let table = "<table>";
     table +=
       '<tr><th style="font-size: 12px">Name</th><th style="font-size: 12px">Passport Number</th><th style="font-size: 12px">Nationality</th><th style="font-size: 12px">Mobile</th></tr>';
-    userData.forEach((item) => {
+    userData2.forEach((item) => {
       table += `<tr><td style="font-size: 9px">${item.name}</td><td style="font-size: 9px">${item.passportNo}</td><td style="font-size: 9px">${item.nationality}</td><td style="font-size: 9px">${item.mobile}</td></tr>`;
     });
     table += "</table>";
@@ -44,13 +47,11 @@ const Template = function ({
        
         
       .invoice-container {
-          margin: 0;
-          padding: 0;
-          padding-top: 10px;
+         
         flex: 1;
-          width: 730px;
+          width: 430px;
           margin: 0px auto;
-          margin-top: 40px;
+        
           }
       
       table {
@@ -93,18 +94,86 @@ const Template = function ({
       <body>
       
       <div class="invoice-container">
-      <div>
-      <h2 style='text-align: center;'>قائمة اسماء الركاب</h2>  
-      </div >
+      <h3 style='text-align: center;'>عقد نقل على الطرق البرية</h3>  
+      <img src=${qrUrl} alt="Base64 Image" style='absolute right:0px'/>
+      <h4 style='text-align: right;'><span style='font-size:12px'>${today}</span>:التاريخ </h4>  
+      <div style='page-break-after: always;font-size:10px;text-align:right'>
+
+  
+
+
+      <p style="text-align:right">
+      
+      تم ابرام هذا العقد بين المتعاقدين بناء على المادة (39) التاسعة والثلاثون من اللائحة المنظمة للنشاط النقل المتخصص وتأجير وتوجيه الحافلات وبناء على الفقرة (1) من المادة (39) والتي تنص على ان يجب على الناقل ابرام عقد نقل مع الأطراف المحددين في المادة (40) قبل تنفيذ عمليات النقل على الطرق البرية وبما لايخالف أحكام هذه اللائحة ووفقا للتلبية التي تحددها هيئة النقل 
+      </p>
+     
+    
+
+<p style="text-align:right" > :
+وبناء على ماسبق تم ابرام عقد النقل بين الأطراف الاتية  
+</p>
+<p style="text-align:right" > ${company.companyLNo
+    }   <span style='font-weight:bold;'>
+الطرف الأول :</span> ${company.nameAr}</p>
+
+<p style="text-align:right" >${userData1.mobile}, ${userData1.nationality}, ${userData1.passportNo
+    } ,${userData1.name}
+  <span style='font-weight:bold;'>
+
+  /الطرف الثاني: السيد
+  
+  </span>
+  </p>
+
+
+
+<p style="text-align:right">
+اتفق الطرفان على ان ينفذ الطرف الأول عملية النقل للطرف الثاني مع مرافقيه وذويهم من الموقع المحدد مسبقا مع الطرف الثاني وتوصيلهم الى الجهة المحددة بالعقد
+<p style="text-align:right">
+<span style='font-weight:bold;'>
+ النقل من : </span> ${locfrom}
+
+</p>
+<p style="text-align:right"><span style='font-weight:bold;'>
+ وصولاً الى :</span>  ${locto}
+
+</p>
+
+
+<p style="text-align:right">
+في حال الغاء التعاقد لاي سبب شخصي او أسباب أخرى تتعلق في الحجوزات او الأنظمة تكون سياسة الإلغاء والاستبدال حسب نظام وزارة التجارة السعودي في حالة الحجز وتم الإلغاء قبل موعد الرحلة بأكثر من 24 ساعة يتم استرداد المبلغ كامل. 
+
+<p>
+
+
+<p style="text-align:right">
+
+في حالة طلب الطرف الثاني الحجز من خلال الموقع الالكتروني للمؤسسة يعتبر هذا الحجز وموافقته على الشروط والاحكام بالموقع الالكتروني هو موافقة على هذا العقد لتنفيذ عملية النقل المتفق عليها مع الطرف الأول بواسطة حافلات المؤسسة المرخصة والمتوافقة مع الاشتراطات المقررة من هيئة النقل. 
+</p>
+
+</div >
+
+  
+
+
+
+
+
+
+
+
+
+
+      <h3 style='text-align: center;'>بيانات السائق</h3>  
+      
+     
       <table style="text-align: center">
             <tr>
-            <td style="font-size: 9px; width: "250px"; overflow-wrap: break-word">${
-              driver.license
-            }</td>
-            <td style="font-size: 9px; width: "50px"; overflow-wrap: break-word">هوية</td>
-            <td style="font-size: 9px; width: "250px"; overflow-wrap: break-word">${
-              driver.name
-            }</td>
+            <td style="font-size: 9px; width: "250px"; overflow-wrap: break-word">${driver.license
+    }</td>
+            <td style="font-size: 9px; width: "50px"; overflow-wrap: break-word">رقم الهوية</td>
+            <td style="font-size: 9px; width: "250px"; overflow-wrap: break-word">${driver.name
+    }</td>
             <td style="font-size: 9px; width: "50px"; overflow-wrap: break-word">اسم السائق</td>
             </tr>
             <tr>
@@ -121,11 +190,13 @@ const Template = function ({
             </tr>
    
     </table>
+
+    <h3 style='text-align: center;'>قائمة أسماء الركاب</h3> 
       <table style="text-align: center">
             
-     
+    
       
-     ${generateTable(userData)}
+     ${generateTable(userData2)}
 
     </table>
       </div>

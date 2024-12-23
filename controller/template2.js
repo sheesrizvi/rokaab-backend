@@ -14,7 +14,7 @@ const Template2 = function ({
   function generateTable(userData) {
     let table = "<table>";
     table +=
-      '<tr><th style="font-size: 12px">التوقیع</th><th style="font-size: 12px">الجنسیة</th><th style="font-size: 12px">رقم الجواز/ التاش یۃ/اقامةr</th><th style="font-size: 12px">االسم</th></tr>';
+      '<tr><th style="font-size: 12px">رقم الجوال</th><th style="font-size: 12px">الجنسیة</th><th style="font-size: 12px">رقم الجواز / التاشيرة /اقامة</th><th style="font-size: 12px">الإسم</th></tr>';
     userData.forEach((item) => {
       table += `<tr><td style="font-size: 9px">${item.mobile}</td><td style="font-size: 9px">${item.nationality}</td><td style="font-size: 9px">${item.passportNo}</td><td style="font-size: 9px">${item.name}</td></tr>`;
     });
@@ -48,11 +48,9 @@ const Template2 = function ({
         .invoice-container {
             margin: 0;
             padding: 0;
-            padding-top: 10px;
-          flex: 1;
-            width: 730px;
+            flex: 1;
+            width: 430px;
             margin: 0px auto;
-            margin-top: 40px;
             }
         
         table {
@@ -101,12 +99,9 @@ const Template2 = function ({
         
         <div class="invoice-container">
         <div>
-        <h2 style='text-align: center;'>إبرام عقد االتفاق ب  ني الطرف  ني</h2>  
-        
-       
-          <h3 style="text-align:right">تحية طيبة وبعد ،،،</h3>
-          <h3 style="text-align:right">${today}: إنه في يوم</h3>
-  
+        <h2 style='text-align: center;'>أبرام عقد إتفاق بين الطرفين</h2>        
+          <p style="text-align:right;font-size:9px">... تحية طيبة و بعد </p>
+          <p style="text-align:right;font-size:9px">${today}: إنه في يوم</p>
         </div >
         
         <p style="text-align:center">بیانات السائق</p>
@@ -114,35 +109,36 @@ const Template2 = function ({
               <tr>
               <td style="font-size: 9px; width: "250px"; overflow-wrap: break-word">رقم اللوحة</td>
               <td style="font-size: 9px; width: "50px"; overflow-wrap: break-word">رقم الھویة</td>
-              <td style="font-size: 9px; width: "250px"; overflow-wrap: break-word">االسم</td>
+              <td style="font-size: 9px; width: "250px"; overflow-wrap: break-word">الإسم</td>
              
               </tr>
               <tr>
               <td style="font-size: 9px; width: "250px"; overflow-wrap: break-word">${plateno}</td>
-              <td style="font-size: 9px; width: "50px"; overflow-wrap: break-word">${
-                driver.license
-              }</td>
-              <td style="font-size: 9px; width: "250px"; overflow-wrap: break-word">${
-                driver.name
-              }</td>
+              <td style="font-size: 9px; width: "50px"; overflow-wrap: break-word">${driver.license
+    }</td>
+              <td style="font-size: 9px; width: "250px"; overflow-wrap: break-word">${driver.name
+    }</td>
              
               </tr>
               
      
       </table>
       <div style="display:flex;width:100%">
-      <h3 style="text-align:right">${company.companyCR}سجل تجاری ${
-    company.name
-  }: نحن<h3>    
+      <p style="text-align:right;font-size:9px">${company.companyCR}-:نحن ${company.nameAr
+    }-: سجل تجاري  
+  <p>    
       </div>
-      <div style="display:flex;width:100%">
-      <h3 style="text-align:right">${locto}ایل ${locfrom}: تم االتفاق مع مجموعة ضیوف الرحمان لنقلھم من<h3>    
+      <div style="display:flex;width:100%;direction:rtl">
+
+      <p style="text-align:right;font-size:9px">تم ألإتفاق مع جميع ضيوف الرحمان لنقلهم من :- ${locto}<p>    
+        
+
       </div>
 
 
    
       <div style="direction:rtl;display:flex">
-       <p style="text-align:right">وھم:ـ</p>
+       <p style="text-align:right;font-size:9px">وھم:ـ</p>
 
       </div>
         <table style="text-align: center">

@@ -1,7 +1,6 @@
 const asyncHandler = require("express-async-handler");
 const Plan = require("../models/planModel");
 
-
 const createPlan = asyncHandler(async (req, res) => {
   const { name, price, duration } = req.body;
 
@@ -22,8 +21,7 @@ const createPlan = asyncHandler(async (req, res) => {
 });
 
 const updatePlan = asyncHandler(async (req, res) => {
-  const { name, price, duration, planId } =
-    req.body;
+  const { name, price, duration, planId } = req.body;
 
   const plan = await Plan.findById(planId);
 
@@ -31,7 +29,6 @@ const updatePlan = asyncHandler(async (req, res) => {
     plan.name = name;
     plan.price = price;
     plan.duration = duration;
-   
 
     const updatedplan = await plan.save();
 
@@ -53,20 +50,11 @@ const getPlans = asyncHandler(async (req, res) => {
   }
 });
 
-
-
 const deletePlan = asyncHandler(async (req, res) => {
-  // console.log("hi");
   const PlanId = req.query.planId;
-  const plan = await Plan.findById(PlanId);
+  const plan = await Plan.deleteOne({ _id: PlanId });
 
-  if (plan) {
-    await plan.remove();
-    res.json({ message: "Plan removed" });
-  } else {
-    res.status(404);
-    throw new Error("Plan not found");
-  }
+  res.json({ message: "Plan removed" });
 });
 
 const getPlanById = asyncHandler(async (req, res) => {

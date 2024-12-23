@@ -250,7 +250,7 @@ const getUsers = asyncHandler(async (req, res) => {
     .populate({ path: "subscription", populate: [{ path: "plan" }] }).limit(pageSize)
     .skip(pageSize * (page - 1));
 
-  res.json({users, pageCount});
+  res.json({ users, pageCount });
 });
 const getBlockedUser = asyncHandler(async (req, res) => {
   const users = await User.find({ subscriptionStatus: false });

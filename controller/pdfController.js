@@ -2,7 +2,7 @@ const asyncHandler = require("express-async-handler");
 const pdf = require("html-pdf");
 const template = require("./template");
 const axios = require("axios");
-
+const QRCode = require('qrcode');
 const aws = require("aws-sdk");
 const fs = require("fs");
 const Pdf = require("../models/pdfModel");
@@ -39,7 +39,9 @@ const transporter = nodemailer.createTransport({
 
 const generatePdf = asyncHandler(async (req, res) => {
   const { company, userData, driver, locto, locfrom, plateno } = req.body;
+  const userData1 = userData[0];
 
+  const userData2 = userData.slice(1);
   const loc = await City.findById(locto);
   const locF = await City.findById(locfrom);
   const imgurl = company.header;
@@ -51,14 +53,15 @@ const generatePdf = asyncHandler(async (req, res) => {
     format: "A4",
 
     header: {
-      height: "70mm",
-      contents: `<header style="margin: auto; width: 90%; height:70mm;">
+      height: "40mm",
+      contents: `<header style="margin:0 auto; width: 90%; height:40mm;">
       <img style="float: left; width: 95%;"src=${imgurl}  />
     </header>`,
     },
     footer: {
       height: "58mm",
       contents: `<footer style="margin: auto; width: 90%">
+      <p style="margin-left:20px">التوقيع</p>
     <img style="float: left; width: 15%" src=${imgurlS}  />
     <img style="float: left; width: 95%" src=${imgurlF}  />
   </footer>`,
@@ -69,171 +72,97 @@ const generatePdf = asyncHandler(async (req, res) => {
       },
     },
   };
-  var options2 = {
-    format: "A4",
 
-    header: {
-      height: "70mm",
-      contents: `<header style="margin: auto; width: 90%; height:70mm;">
-      <img style="float: left; width: 95%;"src=${imgurl}  />
-    </header>`,
-    },
-    footer: {
-      height: "48mm",
-      contents: `<footer style="margin: auto; width: 90%;display:flex;align-items:center">
-    <img style="flex:1;float: left; width: 30%" src=${imgurlS}  />
-    <p style="flex:1;float: right;margin-top:30px">ونشکرکم عیل تسھیل الخدمة للمعتمرین۔</p>
-  </footer>`,
-    },
-    childProcessOptions: {
-      env: {
-        OPENSSL_CONF: "/dev/null",
-      },
-    },
-  };
+  //creating pdf model first and update the url later 
+  const newPdf = await Pdf.create({
+    company: company._id,
+    pdf: "", // Placeholder for URL
+    user: driver._id,
+  });
 
-  if (loc.name.match(/Airport/g)) {
-    pdf
-      .create(
-        Template2({
-          userData,
-          driver,
-          locto: loc.nameAr,
-          locfrom: locF.nameAr,
-          plateno,
-          imgurl,
-          imgurlF,
-          imgurlS,
-          company,
-        }),
-        options2
-      )
-      .toFile(`${__dirname}/${driver._id}.pdf`, (err) => {
-        if (err) {
-          res.json(err);
-        } else {
-          transporter.sendMail(
-            {
-              from: ` Rokaab <rokaab026@gmail.com>`, // sender address
-              to: `${company.email}`, // list of receivers
-              replyTo: `<rokaab026@gmail.com>`,
-              subject: `PDF Document`, // Subject line
-              text: `Find the attached document`, // plain text body
-              // html: emailTemplate(orderItems, paymentMethod, totalPrice), // html body
-              attachments: [
-                {
-                  filename: `${driver._id}.pdf`,
-                  path: `${__dirname}/${driver._id}.pdf`,
-                },
-              ],
-            },
-            function (err, info) {
-              const fileContent = fs.readFileSync(
-                `${__dirname}/${driver._id}.pdf`
-              );
+  const url = `http://rokab.mmhtechnologies.com/pdf/${newPdf._id}`;
 
-              const fileName = `${Date.now()}_${Math.round(
-                Math.random() * 1e9
-              )}`;
-              const params = {
-                Bucket: process.env.AWS_BUCKET,
-                Key: `${fileName}.pdf`,
-                Body: fileContent,
-              };
 
-              s3.upload(params, async (err, data) => {
-                if (err) {
-                  console.error("Error uploading file:", err);
-                } else {
-                  const pdf = await Pdf.create({
-                    company: company._id,
-                    pdf: data.Location,
-                    user: driver._id,
-                  });
-                  fs.unlinkSync(`${__dirname}/${driver._id}.pdf`);
-                  res.json(pdf);
-                }
-              });
-            }
-          );
-        }
-      });
-  } else {
-    pdf
-      .create(
-        template({
-          userData,
-          driver,
-          locto: loc.nameAr,
-          locfrom: locF.nameAr,
-          plateno,
-          imgurl,
-          imgurlF,
-          imgurlS,
-        }),
-        options
-      )
-      .toFile(`${__dirname}/${driver._id}.pdf`, (err) => {
-        if (err) {
-          res.json(err);
-        } else {
-          transporter.sendMail(
-            {
-              from: ` Rokaab <rokaab026@gmail.com>`, // sender address
-              to: `${company.email}`, // list of receivers
-              replyTo: `<rokaab026@gmail.com>`,
-              subject: `PDF Document`, // Subject line
-              text: `Find the attached document`, // plain text body
-              // html: emailTemplate(orderItems, paymentMethod, totalPrice), // html body
-              attachments: [
-                {
-                  filename: `${driver._id}.pdf`,
-                  path: `${__dirname}/${driver._id}.pdf`,
-                },
-              ],
-            },
-            function (err, info) {
-              const fileContent = fs.readFileSync(
-                `${__dirname}/${driver._id}.pdf`
-              );
 
-              const fileName = `${Date.now()}_${Math.round(
-                Math.random() * 1e9
-              )}`;
-              const params = {
-                Bucket: process.env.AWS_BUCKET,
-                Key: `${fileName}.pdf`,
-                Body: fileContent,
-              };
+  //  generate QR code as a string (data URL)
+  QRCode.toDataURL(url, (err, urlString) => {
+    if (err) {
+      console.error('Error generating QR code as Data URL:', err);
+    } else {
 
-              s3.upload(params, async (err, data) => {
-                if (err) {
-                  console.error("Error uploading file:", err);
-                } else {
-                  const pdf = await Pdf.create({
-                    company: company._id,
-                    pdf: data.Location,
-                    user: driver._id,
-                  });
-                  fs.unlinkSync(`${__dirname}/${driver._id}.pdf`);
-                  res.json(pdf);
-                }
-              });
-            }
-          );
-        }
-      });
-  }
+      //url String is a base64 image having qrcode with the url 
+      pdf
+        .create(
+          template({
+            userData1,
+            userData2,
+            driver,
+            locto: loc.nameAr,
+            locfrom: locF.nameAr,
+            plateno,
+            imgurl,
+            imgurlF,
+            imgurlS,
+            company,
+            qrUrl: urlString
+          }),
+          options
+        )
+        .toFile(`${__dirname}/${driver._id}.pdf`, (err) => {
+          if (err) {
+            res.json(err);
+          } else {
+            transporter.sendMail(
+              {
+                from: ` Rokaab <rokaab026@gmail.com>`, // sender address
+                to: `${company.email}`, // list of receivers
+                replyTo: `<rokaab026@gmail.com>`,
+                subject: `PDF Document`, // Subject line
+                text: `Find the attached document`, // plain text body
+                // html: emailTemplate(orderItems, paymentMethod, totalPrice), // html body
+                attachments: [
+                  {
+                    filename: `${driver._id}.pdf`,
+                    path: `${__dirname}/${driver._id}.pdf`,
+                  },
+                ],
+              },
+              function (err, info) {
+                const fileContent = fs.readFileSync(
+                  `${__dirname}/${driver._id}.pdf`
+                );
 
-  // const a = await axios.get(imgurl, {
-  //   responseType: "arraybuffer",
-  //   responseEncoding: "null",
-  // });
+                const fileName = `${Date.now()}_${Math.round(Math.random() * 1e9)}`;
+                const params = {
+                  Bucket: process.env.AWS_BUCKET,
+                  Key: `${fileName}.pdf`,
+                  Body: fileContent,
+                };
 
-  // let jpgDataUrlPrefix = "data:image/png;base64,";
-  // let imageBuffer = Buffer.from(a.data);
-  // let imageBase64 = imageBuffer.toString("base64");
-  // bas64Image = jpgDataUrlPrefix + imageBase64;
+                s3.upload(params, async (err, data) => {
+                  if (err) {
+                    console.error("Error uploading file:", err);
+                  } else {
+
+
+                    // Update the PDF model with the S3 URL
+                    newPdf.pdf = data.Location;
+                    await newPdf.save();
+
+
+                    fs.unlinkSync(`${__dirname}/${driver._id}.pdf`);
+                    res.json(pdf);
+                  }
+                });
+              }
+            );
+          }
+        });
+    }
+  });
+
+
+
 });
 
 const getPdf = asyncHandler(async (req, res) => {
@@ -247,9 +176,51 @@ const getPdf = asyncHandler(async (req, res) => {
   const pdf = await Pdf.find({})
     .populate("user company")
     .limit(pageSize)
-    .skip(pageSize * (page - 1));
+    .skip(pageSize * (page - 1))
+    .sort({ createdAt: -1 });
   res.json({ pdf, pageCount });
 });
+
+const getPdfById = asyncHandler(async (req, res) => {
+
+
+  const pdf = await Pdf.findById(req.query.id)
+    .populate("user company");
+  res.json(pdf);
+});
+
+const getPdfByDriverId = asyncHandler(async (req, res) => {
+  const { driverId } = req.query;
+  const page = Number(req.query.pageNumber) || 1;
+  const pageSize = 20;
+
+  if (!driverId) {
+    res.status(400);
+    throw new Error("Driver ID is required");
+  }
+
+
+  const count = await Pdf.countDocuments({ user: driverId });
+
+
+  var pageCount = Math.floor(count / pageSize);
+  if (count % pageSize !== 0) {
+    pageCount = pageCount + 1;
+  }
+
+
+  const pdf = await Pdf.find({ user: driverId })
+    .populate("user company")
+    .limit(pageSize)
+    .skip(pageSize * (page - 1))
+    .sort({ createdAt: -1 });
+
+  // Return the results
+  res.json({ pdf, pageCount });
+});
+
+
+
 const deletePdf = asyncHandler(async (req, res) => {
   const sub = await Pdf.findById(req.query.id);
 
@@ -272,4 +243,6 @@ module.exports = {
   generatePdf,
   getPdf,
   deletePdf,
+  getPdfByDriverId,
+  getPdfById
 };

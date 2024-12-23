@@ -23,6 +23,7 @@ const createCompany = asyncHandler(async (req, res) => {
     header,
     footer,
     stamp,
+    companyLNo,
   } = req.body;
 
   const plan = await Company.create({
@@ -36,6 +37,7 @@ const createCompany = asyncHandler(async (req, res) => {
     header,
     footer,
     stamp,
+    companyLNo,
   });
 
   if (plan) {
@@ -49,7 +51,16 @@ const createCompany = asyncHandler(async (req, res) => {
 });
 
 const updateCompany = asyncHandler(async (req, res) => {
-  const { name, email, companyCR, header, footer, stamp, companyId } = req.body;
+  const {
+    name,
+    email,
+    companyCR,
+    header,
+    footer,
+    stamp,
+    companyId,
+    companyLNo,
+  } = req.body;
 
   const plan = await Company.findById(companyId);
 
@@ -57,6 +68,7 @@ const updateCompany = asyncHandler(async (req, res) => {
     plan.name = name;
     plan.email = email;
     plan.companyCR = companyCR;
+    plan.companyLNo = companyLNo;
     plan.header = header ? header : plan.header;
     plan.footer = footer ? footer : plan.footer;
     plan.stamp = stamp ? stamp : plan.stamp;
@@ -83,31 +95,29 @@ const getcompanies = asyncHandler(async (req, res) => {
     .skip(pageSize * (page - 1));
 
   if (companies) {
-    res.status(201).json({companies, pageCount});
+    res.status(201).json({ companies, pageCount });
   } else {
     res.status(400);
     throw new Error("Cannot get Companies error");
   }
 });
 const searchCompany = asyncHandler(async (req, res) => {
-  
-    const users = await Company.aggregate([
-      {
-        $search: {
-          index: "default",
-          text: {
-            query: req.query.Query,
-            path: ["name"],
-          },
+  const users = await Company.aggregate([
+    {
+      $search: {
+        index: "default",
+        text: {
+          query: req.query.Query,
+          path: ["name"],
         },
       },
-    ]);
-    if (users) {
-      res.json(users);
-    } else {
-      res.status(404);
-      throw new Error("users not found");
-    
+    },
+  ]);
+  if (users) {
+    res.json(users);
+  } else {
+    res.status(404);
+    throw new Error("users not found");
   }
 });
 
@@ -170,5 +180,5 @@ module.exports = {
   getcompanies,
   updateCompany,
   deleteCompany,
-  searchCompany
+  searchCompany,
 };

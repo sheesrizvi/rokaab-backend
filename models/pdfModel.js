@@ -1,18 +1,23 @@
 const mongoose = require("mongoose");
 
-const pdfSchema = mongoose.Schema({
-  company: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "Company",
+const pdfSchema = mongoose.Schema(
+  {
+    company: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Company",
+    },
+    user: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+    },
+    pdf: {
+      type: String,
+    },
   },
-  user: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "User",
-  },
-  pdf: {
-    type: String,
-  },
-});
+  {
+    timestamps: true,
+  }
+);
 
 const Pdf = mongoose.model("Pdf", pdfSchema);
 
