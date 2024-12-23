@@ -10,6 +10,8 @@ const City = require("../models/cityModel");
 const Template2 = require("./template2");
 const nodemailer = require("nodemailer");
 const { DeleteObjectCommand, S3Client } = require("@aws-sdk/client-s3");
+const TripHistory = require('../models/tripHistoryModel.js')
+
 const s3 = new aws.S3({
   accessKeyId: process.env.AWS_ACCESS_KEY,
   secretAccessKey: process.env.AWS_SECRET_KEY,
@@ -72,6 +74,16 @@ const generatePdf = asyncHandler(async (req, res) => {
       },
     },
   };
+ 
+  const tripHistory = await TripHistory.create({
+    locto,
+    locfrom,
+    company: company._id,
+    driver: driver._id,
+    plateno,
+    passengers: userData
+  })
+
 
   //creating pdf model first and update the url later 
   const newPdf = await Pdf.create({
@@ -239,10 +251,53 @@ const deletePdf = asyncHandler(async (req, res) => {
   res.json("deleted");
 });
 
+
+const getAllTripsHistory = asyncHandler(async (req, res) => {
+  const { pageNumber = 1, pageSize = 20 } = req.query
+
+  const tripHistories = await TripHistory.find({}).sort({ createdAt: -1 }).populate('driver').populate('company').skip((pageNumber - 1) * pageSize).limit(pageSize)
+
+  if(!tripHistories || tripHistories.length === 0) {
+    return res.status(400).send({ message: "No Trip History Found " })
+  }
+
+  const totalDocuments = await TripHistory.countDocuments({})
+  const pageCount = Math.ceil(totalDocuments/pageSize)
+
+  res.status(200).send({ tripHistories, pageCount })
+})
+
+const getTripsByDriverId = asyncHandler(async (req, res) => {
+   const { driverId } = req.query
+
+   const tripHistory = await TripHistory.find({ driver: driverId }).populate('company').populate('driver')
+
+   if(!tripHistory || tripHistory.length === 0) {
+    return res.status(400).send({ message: 'No Trips found for this driver' })
+   }
+
+   res.status(200).send({ tripHistory })
+})
+
+const getTripsById = asyncHandler(async(req, res) => {
+  const { tripId } = req.query
+
+   const tripHistory = await TripHistory.findOne({ _id: tripId}).populate('company').populate('driver')
+
+   if(!tripHistory || tripHistory.length === 0) {
+    return res.status(400).send({ message: 'No Trips found for this driver' })
+   }
+
+   res.status(200).send({ tripHistory })
+})
+
 module.exports = {
   generatePdf,
   getPdf,
   deletePdf,
   getPdfByDriverId,
-  getPdfById
+  getPdfById,
+  getAllTripsHistory,
+  getTripsByDriverId,
+  getTripsById
 };
