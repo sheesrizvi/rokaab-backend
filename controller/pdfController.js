@@ -74,10 +74,10 @@ const generatePdf = asyncHandler(async (req, res) => {
       },
     },
   };
-  console.log(userData, 'userData')
+
   const tripHistory = await TripHistory.create({
-    locto,
-    locfrom,
+    locto: loc,
+    locfrom: locF,
     company: company._id,
     driver: driver._id,
     plateno,
