@@ -41,6 +41,7 @@ const transporter = nodemailer.createTransport({
 
 const generatePdf = asyncHandler(async (req, res) => {
   const { company, userData, driver, locto, locfrom, plateno } = req.body;
+  // console.log(req.body)
   const userData1 = userData[0];
 
   const userData2 = userData.slice(1);
@@ -163,7 +164,7 @@ const generatePdf = asyncHandler(async (req, res) => {
 
 
                     fs.unlinkSync(`${__dirname}/${driver._id}.pdf`);
-                    res.json(pdf);
+                    res.json(data.Location);
                   }
                 });
               }
@@ -275,7 +276,7 @@ const getTripsByDriverId = asyncHandler(async (req, res) => {
   if (!tripHistory || tripHistory.length === 0) {
     return res.status(400).send({ message: 'No Trips found for this driver' })
   }
-  console.log(tripHistory[0].passengers)
+
   res.status(200).send({ tripHistory })
 })
 
