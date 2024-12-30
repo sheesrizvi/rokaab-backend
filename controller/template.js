@@ -16,7 +16,7 @@ const Template = function ({
   function generateTable(userData2) {
     let table = "<table>";
     table +=
-      '<tr><th style="font-size: 12px">Name</th><th style="font-size: 12px">Passport Number</th><th style="font-size: 12px">Nationality</th><th style="font-size: 12px">Mobile</th></tr>';
+      '<tr><th style="font-size: 12px">Name</th><th style="font-size: 12px">Passport/Iqama Number</th><th style="font-size: 12px">Nationality</th><th style="font-size: 12px">Mobile</th></tr>';
     userData2.forEach((item) => {
       table += `<tr><td style="font-size: 9px">${item.name}</td><td style="font-size: 9px">${item.passportNo}</td><td style="font-size: 9px">${item.nationality}</td><td style="font-size: 9px">${item.mobile}</td></tr>`;
     });
